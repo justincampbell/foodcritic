@@ -1816,6 +1816,10 @@ When /^I check the cookbook( without)? excluding the ([^ ]+) directory$/ do |no_
   run_lint(options + ['cookbooks/example'])
 end
 
+When 'I check the cookbook with progress output' do
+  run_lint(['-P', 'cookbooks/example'])
+end
+
 When 'I check the recipe' do
   run_lint(["cookbooks/example/recipes/default.rb"])
 end
@@ -1986,6 +1990,23 @@ Then /^(no )?warnings will be displayed against the tests$/ do |no_display|
     assert_test_warnings
   else
     assert_no_test_warnings
+  end
+end
+
+Then /(failure|success) progress marks should (not )?be displayed/ do |mark_type, no_display|
+  marks = {
+    'failure' => 'x',
+    'success' => '.'
+  }
+
+  mark = marks[mark_type]
+
+  expect_output(/^[#{marks.values.join.gsub(/\./,'\.')}]+$/)
+
+  if no_display
+    expect_no_output(mark)
+  else
+    expect_output(mark)
   end
 end
 
